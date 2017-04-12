@@ -1,0 +1,68 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "jquery": true
+  },
+  "extends": "eslint-config-airbnb",
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true
+    },
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react"
+  ],
+  "rules": {
+    "indent": [
+      "error",
+      4,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "react/jsx-filename-extension": [
+      "off"
+    ],
+    "react/jsx-indent": [
+      "warn",
+      4
+    ],
+    "react/jsx-indent-props": [
+      "warn",
+      4
+    ],
+    "jsx-a11y/img-has-alt": 0,
+    "func-names": 0,
+    "comma-dangle": 0,
+    "no-console": 0,
+    "strict": 0,
+    "react/no-string-refs": 1,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "no-underscore-dangle": 0,
+    "no-unused-vars": 1,
+    "react/forbid-prop-types": 0,
+    "no-useless-escape": 0,
+    "arrow-body-style": 0,
+    "no-cond-assign": 1,
+    "no-eval": 1,
+    "react/require-default-props": 0,
+    "react/no-danger": 0
+  }
+}

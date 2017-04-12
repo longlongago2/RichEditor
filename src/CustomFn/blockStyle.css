@@ -1,0 +1,27 @@
+.cf-richEditor-blockquote {
+    border-left: 5px solid #E5E5E5;
+    font-family: 'Hoefler Text', 'Georgia', serif;
+    font-style: italic;
+    margin: 16px 0;
+    padding: 10px 20px;
+}
+
+.cf-richEditor-code-block {
+    font-family: 'Inconsolata', 'Menlo', 'Consolas', monospace;
+    font-size: 16px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.public-DraftStyleDefault-pre {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    border: 1px solid #E5E5E5;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.cf-richEditor-indent {
+    text-indent: 2em;
+}
