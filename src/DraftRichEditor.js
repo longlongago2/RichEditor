@@ -14,7 +14,8 @@ import ImageBlock from './Decorators/components/ImageEntity';
 import InlineStyleControl from './ToolBar/InlineStyleControls';
 import BlockStyleControl from './ToolBar/BlockStyleControls';
 import BlockStyleSelectCtrl from './ToolBar/BlockStyleSelectCtrls';
-import InlineStyleSlectCtrl from './ToolBar/InlineStyleSelectCtrls';
+import InlineStyleSelectCtrl from './ToolBar/InlineStyleSelectCtrls';
+import LinkLayoutCtrl from './ToolBar/LinkLayoutCtrls';
 import myBlockStyleFn from './CustomFn/blockStyleFn';
 import './CustomFn/blockStyle.css';
 import myKeyBindingFn from './CustomFn/keyBindingFn';
@@ -307,10 +308,10 @@ export default class DraftRichEditor extends Component {
         ];
         // 块级按钮
         const BLOCK_TYPES = [
-            { label: 'list-ul', style: 'unordered-list-item', title: '无序列表' },
-            { label: 'list-ol', style: 'ordered-list-item', title: '有序列表' },
             { label: 'quote-left', style: 'blockquote', title: '引用' },
             { label: 'code', style: 'code-block', title: '代码块' },
+            { label: 'list-ul', style: 'unordered-list-item', title: '无序列表' },
+            { label: 'list-ol', style: 'ordered-list-item', title: '有序列表' },
             { label: 'indent', style: 'indent', title: '缩进' },
         ];
         // 筛选StyleMap
@@ -325,7 +326,15 @@ export default class DraftRichEditor extends Component {
         return (
             <div className={layoutClass} style={darkTheme ? { background: '#333333' } : null}>
                 <div className={styles.header}>
-                    <InlineStyleSlectCtrl
+                    <BlockStyleSelectCtrl
+                        prefixIcon="header"
+                        options={SELECT_BLOCK_TYPES_HEADER}
+                        typeClass="header-"
+                        title="标题"
+                        editorState={editorState}
+                        onToggle={this.toggleBlockType}
+                    />
+                    <InlineStyleSelectCtrl
                         prefixIcon="font"
                         options={SELECT_INLINE_TYPES_FONT}
                         editorState={editorState}
@@ -338,7 +347,7 @@ export default class DraftRichEditor extends Component {
                         editorState={editorState}
                         onToggle={this.toggleInlineStyle}
                     />
-                    <InlineStyleSlectCtrl
+                    <InlineStyleSelectCtrl
                         prefixIcon="font"
                         colorButton
                         options={SELECT_INLINE_TYPES_COLOR}
@@ -347,18 +356,13 @@ export default class DraftRichEditor extends Component {
                         title="字体颜色"
                         styleMap={colorStyleMap}
                     />
-                    <BlockStyleSelectCtrl
-                        prefixIcon="header"
-                        options={SELECT_BLOCK_TYPES_HEADER}
-                        typeClass="header-"
-                        title="标题"
-                        editorState={editorState}
-                        onToggle={this.toggleBlockType}
-                    />
                     <BlockStyleControl
                         buttons={BLOCK_TYPES}
                         editorState={editorState}
                         onToggle={this.toggleBlockType}
+                    />
+                    <LinkLayoutCtrl
+                        prefixIcon="link"
                     />
                 </div>
                 <div
