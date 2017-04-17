@@ -120,6 +120,8 @@ export default class DraftRichEditor extends Component {
         this.toggleInlineStyle = this._toggleInlineStyle.bind(this);
         this.toggleBlockType = this._toggleBlockType.bind(this);
         this.toggleCustomInlineStyle = this._toggleCustomInlineStyle.bind(this);
+        this.handleRemoveLink = this._handleRemoveLink.bind(this);
+        this.handleAddLink = this._handleAddLink.bind(this);
     }
 
     _handleKeyCommand(command) {
@@ -211,6 +213,20 @@ export default class DraftRichEditor extends Component {
         const maxDepth = 4; // 最大层次
         const newEditorState = RichUtils.onTab(e, this.state.editorState, maxDepth);
         this.onChange(newEditorState);
+    }
+
+    _handleRemoveLink() {
+        const { editorState } = this.state;
+        const selection = editorState.getSelection();
+        if (!selection.isCollapsed()) {
+            this.setState({
+                editorState: RichUtils.toggleLink(editorState, selection, null),
+            });
+        }
+    }
+
+    _handleAddLink(url) {
+        console.log(url);
     }
 
     render() {
@@ -323,6 +339,22 @@ export default class DraftRichEditor extends Component {
         });
         // 扩展默认块类型
         const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(myBlockRenderMap);
+        // 选中部分有默认网址链接
+        const defaultLink = () => {
+            let url = '';
+            const selection = editorState.getSelection();
+            if (!selection.isCollapsed()) {
+                const startKey = editorState.getSelection().getStartKey();
+                const startOffset = editorState.getSelection().getStartOffset();
+                const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+                const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
+                if (linkKey) {
+                    const linkInstance = contentState.getEntity(linkKey);
+                    url = linkInstance.getData().url;
+                }
+            }
+            return url;
+        };
         return (
             <div className={layoutClass} style={darkTheme ? { background: '#333333' } : null}>
                 <div className={styles.header}>
@@ -363,6 +395,9 @@ export default class DraftRichEditor extends Component {
                     />
                     <LinkLayoutCtrl
                         prefixIcon="link"
+                        defaultURL={defaultLink()}
+                        removeLink={this.handleRemoveLink}
+                        addLink={this.handleAddLink}
                     />
                 </div>
                 <div
