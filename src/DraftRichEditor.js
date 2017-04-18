@@ -33,6 +33,7 @@ const {
     ContentState,
     Modifier,
     DefaultDraftBlockRenderMap,
+    AtomicBlockUtils,
     convertToRaw,
     convertFromRaw,
     convertFromHTML,
@@ -101,8 +102,11 @@ export default class DraftRichEditor extends Component {
             readOnly: false,
             darkTheme: false,
         };
-        this.onChange = (editorState) => {
-            this.setState({ editorState });
+        this.onChange = (editorState, callback) => {
+            /**
+             * todo: setState 第一个参数是要改变的state对象，第二个参数是 state 导致的页面变化完成后的回调，等价于componentDidUpdate
+             */
+            this.setState({ editorState }, callback);
             // 调用属性方法onChange：将属性方法onChange作为回调函数并输出html作为回调函数的值
             const contentState = editorState.getCurrentContent();
             const rawDraftContentState = convertToRaw(contentState);
@@ -153,7 +157,8 @@ export default class DraftRichEditor extends Component {
             RichUtils.toggleInlineStyle(
                 this.state.editorState,
                 inlineStyle
-            )
+            ), () =>
+                setTimeout(() => this.refs.editor.focus(), 0)
         );
     }
 
@@ -162,7 +167,8 @@ export default class DraftRichEditor extends Component {
             RichUtils.toggleBlockType(
                 this.state.editorState,
                 blockType
-            )
+            ), () =>
+                setTimeout(() => this.refs.editor.focus(), 0)
         );
     }
 
@@ -204,8 +210,8 @@ export default class DraftRichEditor extends Component {
             );
         }
 
-        this.onChange(nextEditorState);
-        // console.log(inlineStyle);
+        this.onChange(nextEditorState, () =>
+            setTimeout(() => this.refs.editor.focus(), 0));
     }
 
     _onTab(e) {
@@ -226,7 +232,26 @@ export default class DraftRichEditor extends Component {
     }
 
     _handleAddLink(url) {
-        console.log(url);
+        const { editorState } = this.state;
+        const selection = editorState.getSelection();
+        const contentState = editorState.getCurrentContent();
+        // 创建实体 IMMUTABLE:一旦更改内容会删除整个entity
+        const contentStateWithEntity = contentState.createEntity(
+            'LINK', 'MUTABLE', { url }
+        );
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const newEditorState = EditorState.set(
+            editorState, { currentContent: contentStateWithEntity }
+        );
+        if (!selection.isCollapsed()) {
+            this.onChange(RichUtils.toggleLink(
+                newEditorState, newEditorState.getSelection(), entityKey
+                ), () =>
+                    setTimeout(() => this.refs.editor.focus(), 0)
+            );
+        } else {
+            console.log('没有选中任何内容');
+        }
     }
 
     render() {
@@ -350,7 +375,10 @@ export default class DraftRichEditor extends Component {
                 const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
                 if (linkKey) {
                     const linkInstance = contentState.getEntity(linkKey);
-                    url = linkInstance.getData().url;
+                    const type = linkInstance.getType();
+                    if (type === 'LINK') {
+                        url = linkInstance.getData().url;
+                    }
                 }
             }
             return url;
@@ -394,7 +422,6 @@ export default class DraftRichEditor extends Component {
                         onToggle={this.toggleBlockType}
                     />
                     <LinkLayoutCtrl
-                        prefixIcon="link"
                         defaultURL={defaultLink()}
                         removeLink={this.handleRemoveLink}
                         addLink={this.handleAddLink}

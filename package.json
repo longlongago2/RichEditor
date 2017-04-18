@@ -1,6 +1,6 @@
 {
   "name": "cf-rich-editor",
-  "version": "1.0.2-beta1.6",
+  "version": "1.0.2-beta1.7",
   "description": "The React rich editor base on draft.js",
   "main": "./lib/index.js",
   "scripts": {

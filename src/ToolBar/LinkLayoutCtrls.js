@@ -3,7 +3,6 @@ import InputLayout from '../UI/InputLayout';
 
 export default class LinkLayoutCtrl extends Component {
     static propTypes = {
-        prefixIcon: PropTypes.string.isRequired,
         addLink: PropTypes.func.isRequired,
         defaultURL: PropTypes.string,
         removeLink: PropTypes.func.isRequired,
@@ -56,7 +55,7 @@ export default class LinkLayoutCtrl extends Component {
     }
 
     render() {
-        const { prefixIcon, defaultURL } = this.props;
+        const { defaultURL } = this.props;
         const { url } = this.state;
         const styles = {
             richEditorControls: {
@@ -94,9 +93,9 @@ export default class LinkLayoutCtrl extends Component {
         return (
             <div style={styles.richEditorControls}>
                 <InputLayout
-                    title="插入链接"
+                    title={defaultURL.trim() !== '' ? '解除链接' : '插入链接'}
                     isActive={defaultURL.trim() !== ''}
-                    prefixIcon={prefixIcon}
+                    prefixIcon={defaultURL.trim() !== '' ? 'chain-broken' : 'link'}
                     body={body}
                     ensure={this.handleEnsure}
                     onClick={this.handleClick}

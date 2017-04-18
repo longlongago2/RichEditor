@@ -1,12 +1,18 @@
 import React, { PropTypes } from 'react';
 
 const MediaComponent = (props) => {
-    const { block, contentState } = this.props;
-    const data = contentState.getEntity(block.getEntityAt(0)).getData();
-    // Return a <figure> or some other content using this data.
+    const { block, contentState } = props;
+    const entity = contentState.getEntity(block.getEntityAt(0));
+    const data = entity.getData();
+    const type = entity.getType();
+    console.log(data, type);
     return (
-        <figure>1</figure>
+        <a href={data.url}>{data.url}</a>
     );
+};
+MediaComponent.propTypes = {
+    block: PropTypes.object,
+    contentState: PropTypes.object,
 };
 
 export default function myBlockRenderer(contentBlock) {

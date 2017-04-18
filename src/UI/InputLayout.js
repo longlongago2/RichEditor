@@ -20,7 +20,9 @@ export default class InputLayout extends Component {
         super(props);
         this.state = {
             showLayout: false,
+            prefixIcon: props.prefixIcon,
             isActive: props.isActive,
+            title: props.title,
             relativeX: null,   // 当前鼠标位置到面板边界的距离
             relativeY: null,
             isDragging: false, // 是否处于drag状态
@@ -36,9 +38,17 @@ export default class InputLayout extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const newState = {};
         if (nextProps.isActive !== this.props.isActive) {
-            this.setState({ isActive: nextProps.isActive });
+            newState.isActive = nextProps.isActive;
         }
+        if (nextProps.title !== this.props.title) {
+            newState.title = nextProps.title;
+        }
+        if (nextProps.prefixIcon !== this.props.prefixIcon) {
+            newState.prefixIcon = nextProps.prefixIcon;
+        }
+        this.setState(newState);
     }
 
     _handleClick(e, isActive) {
@@ -100,8 +110,8 @@ export default class InputLayout extends Component {
     }
 
     render() {
-        const { prefixIcon, title, text, body } = this.props;
-        const { isActive, showLayout } = this.state;
+        const { text, body } = this.props;
+        const { isActive, showLayout, title, prefixIcon } = this.state;
         const btnClass = classModules('toggleButton', 'button', {
             active: isActive,
         });
