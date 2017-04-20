@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import InputLayout from '../UI/InputLayout';
+import request from '../Utils/request';
 
 export default class LinkLayoutCtrl extends Component {
     static propTypes = {
@@ -20,9 +21,11 @@ export default class LinkLayoutCtrl extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const newState = {};
         if (nextProps.defaultURL !== this.props.defaultURL) {
-            this.setState({ url: nextProps.defaultURL });
+            newState.url = nextProps.defaultURL;
         }
+        this.setState(newState);
     }
 
     _handleChange(e, key) {
@@ -31,10 +34,19 @@ export default class LinkLayoutCtrl extends Component {
         this.setState(newState);
     }
 
-    _handleEnsure() {
+    async _handleEnsure() {
         const { addLink } = this.props;
         const { url } = this.state;
-        addLink(url);
+        // 探测 url 是否有效
+        const { data, err } = await request(`http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr=${url}`);
+        if (err) {
+            throw new Error(err);
+        }
+        if (data && data.vaild === 'true') {
+            addLink(url);
+        } else {
+            throw new Error(data.info);
+        }
         this.setState({ url: '' }); // 清除input框
     }
 
@@ -93,7 +105,7 @@ export default class LinkLayoutCtrl extends Component {
         return (
             <div style={styles.richEditorControls}>
                 <InputLayout
-                    title={defaultURL.trim() !== '' ? '解除链接' : '插入链接'}
+                    title={defaultURL.trim() !== '' ? '解除链接' : '添加链接'}
                     isActive={defaultURL.trim() !== ''}
                     prefixIcon={defaultURL.trim() !== '' ? 'chain-broken' : 'link'}
                     body={body}

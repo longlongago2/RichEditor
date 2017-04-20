@@ -6,20 +6,21 @@ const classModules = classNames.bind(styles);
 
 export default class InputLayout extends Component {
     static propTypes = {
-        isActive: PropTypes.bool.isRequired,
+        isActive: PropTypes.bool,
         prefixIcon: PropTypes.string.isRequired,
         text: PropTypes.string,
         title: PropTypes.string.isRequired,
         body: PropTypes.element.isRequired,
         ensure: PropTypes.func.isRequired,
         cancel: PropTypes.func,
-        onClick: PropTypes.func.isRequired,
+        onClick: PropTypes.func,
     };
 
     constructor(props) {
         super(props);
         this.state = {
             showLayout: false,
+            errMsg: '',
             prefixIcon: props.prefixIcon,
             isActive: props.isActive,
             title: props.title,
@@ -28,7 +29,7 @@ export default class InputLayout extends Component {
             isDragging: false, // 是否处于drag状态
         };
         this.showLayout = () => this.setState({ showLayout: true });
-        this.hideLayout = () => this.setState({ showLayout: false });
+        this.hideLayout = () => this.setState({ showLayout: false, errMsg: '' });
         this.handleClick = this._handleClick.bind(this);
         this.handleEnsure = this._handleEnsure.bind(this);
         this.handleCancel = this._handleCancel.bind(this);
@@ -53,28 +54,46 @@ export default class InputLayout extends Component {
 
     _handleClick(e, isActive) {
         const { onClick } = this.props;
+        if (onClick && typeof onClick === 'function') {
+            try {
+                onClick(e, isActive);
+            } catch (err) {
+                this.setState({ errMsg: `错误：${err.message}` });
+                return;
+            }
+        }
         if (!isActive) {
             this.showLayout();
         }
-        onClick(e, isActive);
     }
 
     _handleCancel(e) {
         e.preventDefault();
         e.stopPropagation(); // 禁止冒泡
         const { cancel } = this.props;
-        this.hideLayout();
-        if (cancel && typeof cancel === 'function') {
-            cancel();
+        try {
+            if (cancel && typeof cancel === 'function') {
+                cancel();
+            }
+        } catch (err) {
+            this.setState({ errMsg: `错误：${err.message}` });
+            return;
         }
+        this.hideLayout();
     }
 
     _handleEnsure(e) {
         e.preventDefault();
         e.stopPropagation(); // 禁止冒泡
         const { ensure } = this.props;
-        this.hideLayout();
-        ensure();
+        // ensure 是异步函数
+        try {
+            ensure().then(() => this.hideLayout()).catch((err) => {
+                this.setState({ errMsg: `错误：${err.message}` });
+            });
+        } catch (err) {
+            this.setState({ errMsg: `错误：${err.message}` });
+        }
     }
 
     _handleMouseDown(e) {
@@ -111,7 +130,7 @@ export default class InputLayout extends Component {
 
     render() {
         const { text, body } = this.props;
-        const { isActive, showLayout, title, prefixIcon } = this.state;
+        const { isActive, showLayout, title, prefixIcon, errMsg } = this.state;
         const btnClass = classModules('toggleButton', 'button', {
             active: isActive,
         });
@@ -149,6 +168,19 @@ export default class InputLayout extends Component {
                                     </div>
                                     <div className={styles.modalBody}>
                                         {body}
+                                        {
+                                            errMsg !== '' ?
+                                                <div
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        font: '12px/25px "Microsoft YaHei"',
+                                                        color: 'red'
+                                                    }}
+                                                >
+                                                    {errMsg}
+                                                </div> :
+                                                null
+                                        }
                                     </div>
                                     <div className={styles.modalFooter}>
                                         <button

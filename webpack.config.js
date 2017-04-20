@@ -1,30 +1,38 @@
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin'); // 注意：使用0.0.4版本出现一个bug会导致HMR编译挂起
 const AutoPreFixer = require('autoprefixer');
 require('colors');
 
 const CONFIG_HMR = {
-    entry: {
-        index: [
-            'react-hot-loader/patch',
-            // activate HMR for React
-            './index.js',
-            // the entry point of our app
-        ],
-    },
+    context: __dirname,
+    entry: [
+        'react-hot-loader/patch',
+        // activate HMR for React
+        'webpack-dev-server/client?http://localhost:8010',
+        // bundle the client for webpack-dev-server
+        // and connect to the provided endpoint
+        'webpack/hot/only-dev-server',
+        // bundle the client for hot reloading
+        // only- means to only hot reload for successful updates
+        'whatwg-fetch',
+        // window.fetch polyfill
+        'babel-polyfill',
+        // polyfill for ^es6
+        './index.js',
+        // the entry point of our app
+    ],
     output: {
-        path: path.resolve(__dirname, 'hmr'),
-        filename: '[name].[hash].js',
+        filename: 'bundle.js',
+        path: __dirname,
+        publicPath: '/'
+        // necessary for HMR to know where to load the hot update chunks
     },
     devServer: {
         hot: true,
         // enable HMR on the server
-        contentBase: [
-            path.resolve(__dirname, 'hmr'),
-        ],
+        contentBase: __dirname,
         // match the output path
         publicPath: 'http://0.0.0.0:8010/',
         // match the output `publicPath`
@@ -80,13 +88,6 @@ const CONFIG_HMR = {
         ],
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            filename: 'index.html',
-            title: 'RichEditor-DEV-HMR',
-            template: './index.html',
-            inject: 'body',
-            chunks: ['index'],
-        }),
         new OpenBrowserPlugin({
             url: 'http://localhost:8010',
             browser: 'chrome'
@@ -99,7 +100,11 @@ const CONFIG_HMR = {
 };
 const CONFIG_DIST = {
     entry: {
-        CFRichEditor: './src/index.js'
+        CFRichEditor: [
+            'whatwg-fetch',
+            'babel-polyfill',
+            './src/index.js',
+        ]
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

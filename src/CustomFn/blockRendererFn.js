@@ -7,7 +7,9 @@ const MediaComponent = (props) => {
     const type = entity.getType();
     console.log(data, type);
     return (
-        <a href={data.url}>{data.url}</a>
+        <figure>
+            <img src={data.src} />
+        </figure>
     );
 };
 MediaComponent.propTypes = {

@@ -16,6 +16,7 @@ import BlockStyleControl from './ToolBar/BlockStyleControls';
 import BlockStyleSelectCtrl from './ToolBar/BlockStyleSelectCtrls';
 import InlineStyleSelectCtrl from './ToolBar/InlineStyleSelectCtrls';
 import LinkLayoutCtrl from './ToolBar/LinkLayoutCtrls';
+import AtomicLayoutCtrl from './ToolBar/AtomicLayoutCtrl';
 import myBlockStyleFn from './CustomFn/blockStyleFn';
 import './CustomFn/blockStyle.css';
 import myKeyBindingFn from './CustomFn/keyBindingFn';
@@ -126,6 +127,7 @@ export default class DraftRichEditor extends Component {
         this.toggleCustomInlineStyle = this._toggleCustomInlineStyle.bind(this);
         this.handleRemoveLink = this._handleRemoveLink.bind(this);
         this.handleAddLink = this._handleAddLink.bind(this);
+        this.handleInsertAtomic = this._handleInsertAtomic.bind(this);
     }
 
     _handleKeyCommand(command) {
@@ -232,6 +234,9 @@ export default class DraftRichEditor extends Component {
     }
 
     _handleAddLink(url) {
+        if (url.trim() === '') {
+            throw new Error('网址栏为空！');
+        }
         const { editorState } = this.state;
         const selection = editorState.getSelection();
         const contentState = editorState.getCurrentContent();
@@ -250,8 +255,34 @@ export default class DraftRichEditor extends Component {
                     setTimeout(() => this.refs.editor.focus(), 0)
             );
         } else {
-            console.log('没有选中任何内容');
+            throw new Error('没有选中任何内容！');
         }
+    }
+
+    _handleInsertAtomic(url, atomicType) {
+        if (url.trim() === '') {
+            throw new Error('地址栏为空，请正确填写！');
+        }
+        const { editorState } = this.state;
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity(
+            atomicType,
+            'IMMUTABLE',
+            { src: url }
+        );
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const newEditorState = EditorState.set(
+            editorState,
+            { currentContent: contentStateWithEntity }
+        );
+
+        this.setState({
+            editorState: AtomicBlockUtils.insertAtomicBlock(
+                newEditorState, entityKey, ' '
+            ),
+        }, () => {
+            setTimeout(() => this.refs.editor.focus(), 0);
+        });
     }
 
     render() {
@@ -353,7 +384,7 @@ export default class DraftRichEditor extends Component {
             { label: 'code', style: 'code-block', title: '代码块' },
             { label: 'list-ul', style: 'unordered-list-item', title: '无序列表' },
             { label: 'list-ol', style: 'ordered-list-item', title: '有序列表' },
-            { label: 'indent', style: 'indent', title: '缩进' },
+            { label: 'indent', style: 'indent', title: '段落首行缩进' },
         ];
         // 筛选StyleMap
         const fontStyleMap = Object.keys(myStyleMap).filter((item) => {
@@ -425,6 +456,9 @@ export default class DraftRichEditor extends Component {
                         defaultURL={defaultLink()}
                         removeLink={this.handleRemoveLink}
                         addLink={this.handleAddLink}
+                    />
+                    <AtomicLayoutCtrl
+                        insertAtomic={this.handleInsertAtomic}
                     />
                 </div>
                 <div
