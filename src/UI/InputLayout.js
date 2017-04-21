@@ -27,9 +27,10 @@ export default class InputLayout extends Component {
             relativeX: null,   // 当前鼠标位置到面板边界的距离
             relativeY: null,
             isDragging: false, // 是否处于drag状态
+            loading: false
         };
         this.showLayout = () => this.setState({ showLayout: true });
-        this.hideLayout = () => this.setState({ showLayout: false, errMsg: '' });
+        this.hideLayout = () => this.setState({ showLayout: false, errMsg: '', loading: false });
         this.handleClick = this._handleClick.bind(this);
         this.handleEnsure = this._handleEnsure.bind(this);
         this.handleCancel = this._handleCancel.bind(this);
@@ -85,14 +86,15 @@ export default class InputLayout extends Component {
     _handleEnsure(e) {
         e.preventDefault();
         e.stopPropagation(); // 禁止冒泡
+        this.setState({ loading: true, errMsg: '' });
         const { ensure } = this.props;
         // ensure 是异步函数
         try {
             ensure().then(() => this.hideLayout()).catch((err) => {
-                this.setState({ errMsg: `错误：${err.message}` });
+                this.setState({ errMsg: `错误：${err.message}`, loading: false });
             });
         } catch (err) {
-            this.setState({ errMsg: `错误：${err.message}` });
+            this.setState({ errMsg: `错误：${err.message}`, loading: false });
         }
     }
 
@@ -130,7 +132,7 @@ export default class InputLayout extends Component {
 
     render() {
         const { text, body } = this.props;
-        const { isActive, showLayout, title, prefixIcon, errMsg } = this.state;
+        const { isActive, showLayout, title, prefixIcon, errMsg, loading } = this.state;
         const btnClass = classModules('toggleButton', 'button', {
             active: isActive,
         });
@@ -181,6 +183,26 @@ export default class InputLayout extends Component {
                                                 </div> :
                                                 null
                                         }
+                                        {
+                                            loading ?
+                                                <div
+                                                    style={{
+                                                        font: '12px/25px "Microsoft YaHei"',
+                                                        color: '#9E9E9E',
+                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    <i
+                                                        style={{
+                                                            margin: '0 10px',
+                                                            fontSize: '15px'
+                                                        }}
+                                                        className="fa fa-cog fa-spin"
+                                                    />
+                                                    正在检测网址...
+                                                </div> :
+                                                null
+                                        }
                                     </div>
                                     <div className={styles.modalFooter}>
                                         <button
@@ -192,7 +214,16 @@ export default class InputLayout extends Component {
                                         <button
                                             className={styles.btnEnsure}
                                             onClick={this.handleEnsure}
+                                            disabled={loading ? 'disabled' : false}
                                         >
+                                            {
+                                                loading ?
+                                                    <i
+                                                        style={{ margin: '0 5px' }}
+                                                        className="fa fa-spinner fa-spin"
+                                                    /> :
+                                                    null
+                                            }
                                             确定
                                         </button>
                                     </div>

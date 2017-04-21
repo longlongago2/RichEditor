@@ -456,9 +456,11 @@ export default class DraftRichEditor extends Component {
                         defaultURL={defaultLink()}
                         removeLink={this.handleRemoveLink}
                         addLink={this.handleAddLink}
+                        snifferApi="http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr="
                     />
                     <AtomicLayoutCtrl
                         insertAtomic={this.handleInsertAtomic}
+                        snifferApi="http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr="
                     />
                 </div>
                 <div

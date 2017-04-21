@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import InputLayout from '../UI/InputLayout';
+import request from '../Utils/request';
 
 export default class AtomicLayoutCtrl extends Component {
     static propTypes = {
         insertAtomic: PropTypes.func.isRequired,
+        snifferApi: PropTypes.string.isRequired,
+        // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
     constructor(props) {
@@ -21,11 +24,32 @@ export default class AtomicLayoutCtrl extends Component {
         this.setState(newState);
     }
 
-    _handleEnsure() {
-        const { insertAtomic } = this.props;
+    async _handleEnsure() {
+        const { insertAtomic, snifferApi } = this.props;
         const { url } = this.state;
-        const atomicType = 'image';
-        insertAtomic(url, atomicType);
+        // 探测 url 是否有效
+        const { data, err } = await request(`${snifferApi}${url}`);
+        if (err) {
+            throw new Error(err);
+        }
+        if (data && data.vaild === 'true') {
+            let atomicType;
+            const imageRegExp = new RegExp('[^\s]+\.(jpg|png|gif)');
+            const audioRegExp = new RegExp('[^\s]+\.(mp3|wav|ogg)');
+            const videoRegExp = new RegExp('[^\s]+\.(ogg|mp4|mkv)');
+            if (imageRegExp.test(url)) {
+                atomicType = 'image';
+            }
+            if (audioRegExp.test(url)) {
+                atomicType = 'audio';
+            }
+            if (videoRegExp.test(url)) {
+                atomicType = 'video';
+            }
+            insertAtomic(url, atomicType);
+        } else {
+            throw new Error(data.info);
+        }
         this.setState({ url: '' }); // 清除input框
     }
 
@@ -57,10 +81,11 @@ export default class AtomicLayoutCtrl extends Component {
                     />
                 </div>
                 <section
-                    style={{ textAlign: 'left', font: '12px/25px "Microsoft YaHei",sans-serif', maxWidth: '420px' }}
+                    style={{ textAlign: 'left', font: '12px/25px "Microsoft YaHei",sans-serif', width: '420px' }}
                 >
-                    我们支持 MP3、MP4、JPEG 格式的文件地址服务，请保证多媒体文件地址真实有效，否则无法正常显示！<br />
-                    请注意版权问题，相关规则以网站规则为依据！
+                    1.目前我们只保证支持 <b>才丰软件服务平台</b> 上传的 <b>音频</b>、<b>视频</b>、<b>图片</b> 等多媒体文件服务！<br />
+                    2.图片支持外网的范围较广，可以尝试百度图片的地址链接<br />
+                    3.使用外网的图片时，请注意版权问题，相关规则以网站规则为依据！
                 </section>
             </div>
         );

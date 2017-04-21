@@ -7,6 +7,8 @@ export default class LinkLayoutCtrl extends Component {
         addLink: PropTypes.func.isRequired,
         defaultURL: PropTypes.string,
         removeLink: PropTypes.func.isRequired,
+        snifferApi: PropTypes.string.isRequired,
+        // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
     constructor(props) {
@@ -35,10 +37,10 @@ export default class LinkLayoutCtrl extends Component {
     }
 
     async _handleEnsure() {
-        const { addLink } = this.props;
+        const { addLink, snifferApi } = this.props;
         const { url } = this.state;
         // 探测 url 是否有效
-        const { data, err } = await request(`http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr=${url}`);
+        const { data, err } = await request(`${snifferApi}${url}`);
         if (err) {
             throw new Error(err);
         }
@@ -52,7 +54,7 @@ export default class LinkLayoutCtrl extends Component {
 
     _handleFocus() {
         const { url } = this.state;
-        const regExp = new RegExp('^((https|http|ftp)?://)');
+        const regExp = new RegExp('[a-zA-z]+://[^\s]*');
         if (!regExp.test(url)) {
             this.setState({ url: 'http://' });
         }
@@ -96,7 +98,7 @@ export default class LinkLayoutCtrl extends Component {
                         onChange={e => this.handleChange(e, 'url')}
                     />
                 </div>
-                <section style={{ textAlign: 'left', font: '12px/25px "Microsoft YaHei",sans-serif' }}>
+                <section style={{ textAlign: 'left', font: '12px/25px "Microsoft YaHei",sans-serif', width: '370px' }}>
                     请在网络地址前面使用 http(s)://，例如：http://www.baidu.com。<br />
                     保证网址能有效！
                 </section>
