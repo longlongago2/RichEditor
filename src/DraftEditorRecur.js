@@ -101,12 +101,12 @@ export default class DraftEditorRecur extends Component {
         const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(myBlockRenderMap);
         return (
             <div className={styles.layout}>
-                <div className={styles.body}>
+                <div className={styles.body} style={{ cursor: 'default' }}>
                     <Editor
                         readOnly
                         editorState={editorState}
                         blockStyleFn={myBlockStyleFn}
-                        blockRendererFn={myBlockRendererFn}
+                        blockRendererFn={contentBlock => myBlockRendererFn(contentBlock, true)}
                         customStyleMap={myStyleMap}
                         blockRenderMap={extendedBlockRenderMap}
                     />

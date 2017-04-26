@@ -1,6 +1,6 @@
 import { findWithRegex, findWithEntityKey } from './verification';
 
-const HANDLE_REGEX = /\@[\w]+/g;
+const HANDLE_REGEX = /\@[\S]+/g;
 
 export function findHandleRegex(contentBlock, callback, contentState) {
     findWithRegex(HANDLE_REGEX, contentBlock, callback);

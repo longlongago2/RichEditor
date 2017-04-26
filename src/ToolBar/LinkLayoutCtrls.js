@@ -7,7 +7,7 @@ export default class LinkLayoutCtrl extends Component {
         addLink: PropTypes.func.isRequired,
         defaultURL: PropTypes.string,
         removeLink: PropTypes.func.isRequired,
-        snifferApi: PropTypes.string.isRequired,
+        snifferApi: PropTypes.object.isRequired,
         // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
@@ -40,11 +40,11 @@ export default class LinkLayoutCtrl extends Component {
         const { addLink, snifferApi } = this.props;
         const { url } = this.state;
         // 探测 url 是否有效
-        const { data, err } = await request(`${snifferApi}${url}`);
+        const { data, err } = await request(`${snifferApi.url}?${snifferApi.param}=${url}`);
         if (err) {
             throw new Error(err);
         }
-        if (data && data.vaild === 'true') {
+        if (data && data.vaild) {
             addLink(url);
         } else {
             throw new Error(data.info);
@@ -85,6 +85,7 @@ export default class LinkLayoutCtrl extends Component {
                 padding: '0 5px',
                 fontSize: '15px',
                 lineHeight: '20px',
+                background: '#ffffff'
             }
         };
         const body = (

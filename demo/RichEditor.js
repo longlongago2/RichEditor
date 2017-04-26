@@ -26,7 +26,8 @@ export default class Demo extends Component {
         const richEditorProps = {
             onChange: this.handleChange,
             importHtml: false,
-            initialRawContent: JSON.parse(rowContentStorage)
+            initialRawContent: JSON.parse(rowContentStorage),
+            snifferApi: { url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }
         };
         const editorRecurProps = {
             rawContentState,

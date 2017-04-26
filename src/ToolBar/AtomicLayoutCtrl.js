@@ -5,7 +5,7 @@ import request from '../Utils/request';
 export default class AtomicLayoutCtrl extends Component {
     static propTypes = {
         insertAtomic: PropTypes.func.isRequired,
-        snifferApi: PropTypes.string.isRequired,
+        snifferApi: PropTypes.object.isRequired,
         // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
@@ -28,11 +28,11 @@ export default class AtomicLayoutCtrl extends Component {
         const { insertAtomic, snifferApi } = this.props;
         const { url } = this.state;
         // 探测 url 是否有效
-        const { data, err } = await request(`${snifferApi}${url}`);
+        const { data, err } = await request(`${snifferApi.url}?${snifferApi.param}=${url}`);
         if (err) {
             throw new Error(err);
         }
-        if (data && data.vaild === 'true') {
+        if (data && data.vaild) {
             let atomicType;
             const imageRegExp = new RegExp('[^\s]+\.(jpg|png|gif)');
             const audioRegExp = new RegExp('[^\s]+\.(mp3|wav|ogg)');
@@ -68,6 +68,7 @@ export default class AtomicLayoutCtrl extends Component {
                 padding: '5px',
                 fontSize: '15px',
                 lineHeight: '20px',
+                background: '#ffffff',
             }
         };
         const body = (

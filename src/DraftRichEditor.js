@@ -3,6 +3,7 @@ import Draft from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { stateToHTML } from 'draft-js-export-html';
 import classNames from 'classnames/bind';
+import uuid from 'uuid/v4';
 import {
     findHandleRegex,
     findLinkEntities,
@@ -17,6 +18,7 @@ import BlockStyleSelectCtrl from './ToolBar/BlockStyleSelectCtrls';
 import InlineStyleSelectCtrl from './ToolBar/InlineStyleSelectCtrls';
 import LinkLayoutCtrl from './ToolBar/LinkLayoutCtrls';
 import AtomicLayoutCtrl from './ToolBar/AtomicLayoutCtrl';
+import ImageUploadCtrl from './ToolBar/ImageUploadCtrl';
 import myBlockStyleFn from './CustomFn/blockStyleFn';
 import './CustomFn/blockStyle.css';
 import myKeyBindingFn from './CustomFn/keyBindingFn';
@@ -29,6 +31,7 @@ const classModules = classNames.bind(styles);
 const {
     EditorState,
     Editor,
+    Entity,
     RichUtils,
     CompositeDecorator,
     ContentState,
@@ -46,6 +49,7 @@ export default class DraftRichEditor extends Component {
         initialHtml: PropTypes.string,                 // 初始数据html
         initialRawContent: PropTypes.object,           // 初始数据rowContent
         importHtml: PropTypes.bool.isRequired,         // 是否导入html
+        snifferApi: PropTypes.object,                  // 地址嗅探接口：{ url:'', param:'参数名称' }
     };
 
     static defaultProps = {
@@ -128,6 +132,8 @@ export default class DraftRichEditor extends Component {
         this.handleRemoveLink = this._handleRemoveLink.bind(this);
         this.handleAddLink = this._handleAddLink.bind(this);
         this.handleInsertAtomic = this._handleInsertAtomic.bind(this);
+        this.handleFileInput = this._handleFileInput.bind(this);
+        this.handleEditImage = this._handleEditImage.bind(this);
     }
 
     _handleKeyCommand(command) {
@@ -268,7 +274,7 @@ export default class DraftRichEditor extends Component {
         const contentStateWithEntity = contentState.createEntity(
             atomicType,
             'IMMUTABLE',
-            { src: url }
+            { src: url, uuid: uuid() }
         );
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
         const newEditorState = EditorState.set(
@@ -285,11 +291,53 @@ export default class DraftRichEditor extends Component {
         });
     }
 
+    _handleFileInput(e) {
+        const { editorState } = this.state;
+        const fileList = e.target.files;
+        const file = fileList[0];
+        const entityKey = Entity.create('image', 'IMMUTABLE', { src: URL.createObjectURL(file), uuid: uuid() });
+        this.onChange(AtomicBlockUtils.insertAtomicBlock(
+            editorState,
+            entityKey,
+            ' '
+        ));
+    }
+
+    _handleEditImage(key, src, width, height, edit) {
+        const { editorState } = this.state;
+        const contentState = editorState.getCurrentContent();
+        this.setState({ readOnly: edit });
+        if (!edit) {
+            const rawContentState = convertToRaw(contentState);
+            const rawEntityMap = rawContentState.entityMap;
+            const entityKeyStr = Object.keys(rawEntityMap).filter(
+                item => rawEntityMap[item].data.uuid === key
+            )[0];
+            rawContentState.entityMap[entityKeyStr].data.width = width;
+            rawContentState.entityMap[entityKeyStr].data.height = height;
+            const nextContentState = convertFromRaw(rawContentState);
+            const nextEditorState = EditorState.push(
+                editorState,
+                nextContentState,
+                'change-atomic-image'
+            );
+            this.onChange(nextEditorState, () => {
+                setTimeout(() => {
+                    this.refs.editor.focus();
+                    this.refs.editor.blur();
+                    this.refs.editor.focus();
+                    // 刷新富文本编辑器
+                }, 0);
+            });
+        }
+    }
+
     render() {
         const { editorState, readOnly, darkTheme } = this.state;
+        const { snifferApi } = this.props;
         const contentState = editorState.getCurrentContent();
         const editorTheme = {
-            opacity: readOnly ? 0.6 : 1,
+            cursor: readOnly ? 'default' : null,
             color: darkTheme ? '#ffffff' : null
         };
         const layoutClass = classModules('layout', 'border');
@@ -456,11 +504,15 @@ export default class DraftRichEditor extends Component {
                         defaultURL={defaultLink()}
                         removeLink={this.handleRemoveLink}
                         addLink={this.handleAddLink}
-                        snifferApi="http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr="
+                        snifferApi={snifferApi}
                     />
                     <AtomicLayoutCtrl
                         insertAtomic={this.handleInsertAtomic}
-                        snifferApi="http://192.168.1.49:8080/CFSP/web/checkUrl?urlStr="
+                        snifferApi={snifferApi}
+                    />
+                    <ImageUploadCtrl
+                        title="添加图片"
+                        onChange={this.handleFileInput}
                     />
                 </div>
                 <div
@@ -473,11 +525,13 @@ export default class DraftRichEditor extends Component {
                         onChange={this.onChange}
                         onTab={this.onTab}
                         placeholder="请输入正文..."
-                        readOnly={this.state.readOnly}
+                        readOnly={readOnly}
                         ref="editor"
                         spellCheck
                         blockStyleFn={myBlockStyleFn}
-                        blockRendererFn={myBlockRendererFn}
+                        blockRendererFn={contentBlock =>
+                            myBlockRendererFn(contentBlock, false, this.handleEditImage)
+                        }
                         keyBindingFn={myKeyBindingFn}
                         customStyleMap={myStyleMap}
                         blockRenderMap={extendedBlockRenderMap}

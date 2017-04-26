@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>cf-rich-editor</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
     <link rel="stylesheet" href="../dist/CFRichEditor.css" />
 </head>
 <body>
@@ -11,7 +11,7 @@
 </body>
 <script src="../node_modules/react/dist/react.js"></script>
 <script src="../node_modules/react-dom/dist/react-dom.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+<script src="./js/babel.min.js"></script>
 <script src="../dist/CFRichEditor.js"></script>
 <script type="text/babel">
     'use strict';
@@ -20,14 +20,16 @@
     class DemoRichEditor extends React.Component {
         constructor(props) {
             super(props);
+            this.state = { rawContentState:{} }
             this.onChange = this._onChange.bind(this);
         }
 
         _onChange(html, rawState) {
-            console.log(rawState);
+            this.setState({ rawContentState: rawState });
         }
 
         render() {
+            const { rawContentState } = this.state;
             return (
                     <div style={{ margin: '10px 20%' }}>
                         <RichEditor
@@ -35,6 +37,8 @@
                                 initialHtml="<p>demo</p>"
                                 onChange={this.onChange}
                         />
+                        <h1>预览</h1>
+                        <EditorRecur rawContentState={rawContentState} />
                     </div>
             );
         }
