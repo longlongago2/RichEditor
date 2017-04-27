@@ -10,16 +10,10 @@ const CONFIG_HMR = {
     entry: [
         'react-hot-loader/patch',
         // activate HMR for React
-        'webpack-dev-server/client?http://localhost:8010',
-        // bundle the client for webpack-dev-server
-        // and connect to the provided endpoint
-        'webpack/hot/only-dev-server',
-        // bundle the client for hot reloading
-        // only- means to only hot reload for successful updates
         'whatwg-fetch',
-        // window.fetch polyfill
+        // add fetch to window
         'babel-polyfill',
-        // polyfill for ^es6
+        // add Promise and so on
         './index.js',
         // the entry point of our app
     ],
@@ -34,7 +28,7 @@ const CONFIG_HMR = {
         // enable HMR on the server
         contentBase: __dirname,
         // match the output path
-        publicPath: 'http://0.0.0.0:8010/',
+        publicPath: '/',
         // match the output `publicPath`
         overlay: {
             warnings: true,
@@ -100,11 +94,7 @@ const CONFIG_HMR = {
 };
 const CONFIG_DIST = {
     entry: {
-        CFRichEditor: [
-            'whatwg-fetch',
-            'babel-polyfill',
-            './src/index.js',
-        ]
+        CFRichEditor: './src/dist-entry.js',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

@@ -20,7 +20,7 @@
     class DemoRichEditor extends React.Component {
         constructor(props) {
             super(props);
-            this.state = { rawContentState:{} }
+            this.state = { rawContentState:{} };
             this.onChange = this._onChange.bind(this);
         }
 
@@ -35,6 +35,7 @@
                         <RichEditor
                                 importHtml
                                 initialHtml="<p>demo</p>"
+                                snifferApi={{ url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }}
                                 onChange={this.onChange}
                         />
                         <h1>预览</h1>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import Demo from './demo/RichEditor';
+import DemoApp from './src/demo/RichEditor';
 
 const renderApp = (Component) => {
     render(
@@ -12,12 +12,12 @@ const renderApp = (Component) => {
     );
 };
 
-renderApp(Demo);
+renderApp(DemoApp);
 
 // Hot Module Replacement API
 if (module.hot) {
-    module.hot.accept('./demo/RichEditor.js', () => {
-        renderApp(require('./demo/RichEditor'));
+    module.hot.accept('./src/demo/RichEditor', () => {
+        renderApp(DemoApp);
     });
 }
 

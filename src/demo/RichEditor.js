@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { RichEditor, EditorRecur } from '../src/index'; // development
-// import { RichEditor, EditorRecur } from '../lib/index'; // production
-// import '../dist/CFRichEditor.css';
+import { RichEditor, EditorRecur } from '../index'; // development
+// import { RichEditor, EditorRecur } from '../../lib/index'; // production
+// import '../../dist/CFRichEditor.css'; // production
 import styles from './RichEditor.less';
 
 export default class Demo extends Component {

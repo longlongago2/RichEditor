@@ -1,12 +1,12 @@
 {
   "name": "cf-rich-editor",
-  "version": "1.0.2-beta1.8",
+  "version": "1.0.7",
   "description": "The React rich editor base on draft.js",
   "main": "./lib/index.js",
   "scripts": {
     "start": "webpack-dev-server --env.hmr",
     "build-dist": "rimraf dist && webpack --env.dist",
-    "build": "rimraf lib && cross-env BABEL_ENV=production BABEL_DISABLE_CACHE=1 babel src --out-dir lib",
+    "build": "rimraf lib && cross-env BABEL_ENV=production BABEL_DISABLE_CACHE=1 babel src --out-dir lib --ignore dist-entry.js,demo",
     "prepublish": "npm run build"
   },
   "keywords": [
@@ -59,6 +59,7 @@
     "react-dom": "^15.4.2"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "classnames": "^2.2.5",
     "draft-js": "^0.10.0",
     "draft-js-export-html": "^0.5.2",

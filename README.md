@@ -76,6 +76,56 @@ externals: {
 
 ## production 使用文档
 <a name="pro"></a>
-inlineStyle:以行为单位设置，display:inline
-blockStyle:以块为单位设置,display:block
-*正在开发... 暂时不要使用*
+### ECMAScript 6
+```
+import { RichEditor, EditorRecur } from 'cf-rich-editor';
+import 'cf-rich-editor/dist/CFRichEditor.css';
+
+import React, { Component, PropTypes } from 'react';
+export default class Demo extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            rawContentState: {},
+        };
+        this.handleChange = this._handleChange.bind(this);
+    }
+
+    _handleChange(html, rawContentState) {
+        // console.log(rawContentState);
+        // console.log(html);
+        this.setState({ rawContentState });
+    }
+
+    render() {
+        const { rawContentState } = this.state;
+        const sessionKey = window.location.href.split('?')[0]; // session名称
+        const rowContentStorage = sessionStorage.getItem(sessionKey);
+        const richEditorProps = {
+            onChange: this.handleChange,
+            importHtml: false, // 是否导入 html(string) 类型数据
+            initialRawContent: JSON.parse(rowContentStorage), // 本地缓存数据
+            snifferApi: { url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }
+            // 网址嗅探接口：返回值格式遵循{ vaild:true/false,response:'responseInfo' }有效true,无效false
+        };
+        const editorRecurProps = {
+            rawContentState,
+        };
+        return (
+            <div>
+                <h2>RichEditor base on draft.js!</h2>
+                <RichEditor {...richEditorProps} />
+                <h2>实时预览</h2>
+                <EditorRecur {...editorRecurProps} />
+            </div>
+        );
+    }
+}
+```
+
+### FAQ
+1.报错：Uncaught ReferenceError: regeneratorRuntime is not defined
+【解决方案】
+webpack.config.js 文件入口配置：
+entry:['whatwg-fetch','babel-polyfill','your-entry-file.js']
+babel-polyfill要放在开发模块your-entry-file.js的前面

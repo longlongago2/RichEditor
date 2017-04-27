@@ -5,6 +5,6 @@
 # IntelliJ project files
 .idea
 node_modules
-demo
+src/demo
 example
 src
