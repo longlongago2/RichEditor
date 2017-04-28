@@ -9,17 +9,28 @@ export default class FileInputButton extends Component {
         prefixIcon: PropTypes.string.isRequired,
         title: PropTypes.string,
         text: PropTypes.string,
+        uploadSuccess: PropTypes.bool.isRequired,
         onChange: PropTypes.func.isRequired,
     };
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            uploadSuccess: props.uploadSuccess
+        };
         this.handleOpenFileDialog = this._handleOpenFileDialog.bind(this);
         this.handleChange = (e) => {
             e.preventDefault();
             props.onChange(e);
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.uploadSuccess !== this.props.uploadSuccess) {
+            this.setState({
+                uploadSuccess: nextProps.uploadSuccess
+            });
+        }
     }
 
     _handleOpenFileDialog() {
@@ -28,12 +39,22 @@ export default class FileInputButton extends Component {
 
     render() {
         const { prefixIcon, title, text } = this.props;
-        const className = classModule('toggleButton', 'button');
+        const { uploadSuccess } = this.state;
+        const className = classModule('selectButton', 'button');
         return (
             <span className={className} title={title} onMouseDown={this.handleOpenFileDialog}>
                 <i className={`fa fa-${prefixIcon}`} aria-hidden="true">
                     {text ? <span>{text}</span> : null}
                 </i>
+                <ul className={styles.optionLayout} style={uploadSuccess ? { display: 'none' } : null}>
+                    <em className={styles.arrow}><em /></em>
+                    <div style={{ font: '12px/30px "Microsoft YaHei"', padding: '5px', width: '110px' }}>
+                        <div style={{ color: 'red', fontSize: '20px' }}>
+                            <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+                        </div>
+                        图片上传失败！
+                    </div>
+                </ul>
                 <input
                     type="file"
                     ref="fileInput"

@@ -20,7 +20,7 @@
     class DemoRichEditor extends React.Component {
         constructor(props) {
             super(props);
-            this.state = { rawContentState:{} };
+            this.state = { rawContentState: {} };
             this.onChange = this._onChange.bind(this);
         }
 
@@ -30,12 +30,15 @@
 
         render() {
             const { rawContentState } = this.state;
+            // sniffer:网址嗅探打开{ check:true, url:'嗅探接口', param:'传入地址参数名称' }
             return (
                     <div style={{ margin: '10px 20%' }}>
                         <RichEditor
                                 importHtml
                                 initialHtml="<p>demo</p>"
-                                snifferApi={{ url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }}
+                                sniffer={{
+                                    check: false,
+                                }}
                                 onChange={this.onChange}
                         />
                         <h1>预览</h1>

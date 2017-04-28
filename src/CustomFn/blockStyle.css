@@ -13,6 +13,12 @@
     margin: 10px 5px;
 }
 
+.cf-richEditor-indent {
+    text-indent: 2em;
+}
+
+/*重写原始样式*/
+
 .public-DraftStyleDefault-pre {
     background-color: rgba(0, 0, 0, 0.05);
     padding: 15px;
@@ -22,6 +28,12 @@
     border-radius: 5px;
 }
 
-.cf-richEditor-indent {
-    text-indent: 2em;
+.public-DraftStyleDefault-ol {
+    margin: 0;
+    padding: 0;
+}
+
+.public-DraftStyleDefault-ul {
+    margin: 0;
+    padding: 0;
 }

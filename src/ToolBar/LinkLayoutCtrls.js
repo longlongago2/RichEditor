@@ -7,7 +7,8 @@ export default class LinkLayoutCtrl extends Component {
         addLink: PropTypes.func.isRequired,
         defaultURL: PropTypes.string,
         removeLink: PropTypes.func.isRequired,
-        snifferApi: PropTypes.object.isRequired,
+        sniffer: PropTypes.object.isRequired,
+        // 接收类型：object { check:bool(是否检查网址), url:'嗅探网址接口' ,param:'传入的地址参数名称' }
         // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
@@ -37,17 +38,21 @@ export default class LinkLayoutCtrl extends Component {
     }
 
     async _handleEnsure() {
-        const { addLink, snifferApi } = this.props;
+        const { addLink, sniffer } = this.props;
         const { url } = this.state;
         // 探测 url 是否有效
-        const { data, err } = await request(`${snifferApi.url}?${snifferApi.param}=${url}`);
-        if (err) {
-            throw new Error(err);
-        }
-        if (data && data.vaild) {
-            addLink(url);
+        if (sniffer.check) {
+            const { data, err } = await request(`${sniffer.url}?${sniffer.param}=${url}`);
+            if (err) {
+                throw new Error(err);
+            }
+            if (data && data.vaild) {
+                addLink(url);
+            } else {
+                throw new Error(data.info);
+            }
         } else {
-            throw new Error(data.info);
+            addLink(url);
         }
         this.setState({ url: '' }); // 清除input框
     }

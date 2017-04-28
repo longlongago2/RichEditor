@@ -5,7 +5,7 @@ import request from '../Utils/request';
 export default class AtomicLayoutCtrl extends Component {
     static propTypes = {
         insertAtomic: PropTypes.func.isRequired,
-        snifferApi: PropTypes.object.isRequired,
+        sniffer: PropTypes.object.isRequired,
         // snifferApi:接口返回值{ vaild:true/false,response:'responseInfo' }有效true,无效false
     };
 
@@ -25,18 +25,33 @@ export default class AtomicLayoutCtrl extends Component {
     }
 
     async _handleEnsure() {
-        const { insertAtomic, snifferApi } = this.props;
+        const { insertAtomic, sniffer } = this.props;
         const { url } = this.state;
-        // 探测 url 是否有效
-        const { data, err } = await request(`${snifferApi.url}?${snifferApi.param}=${url}`);
-        if (err) {
-            throw new Error(err);
-        }
-        if (data && data.vaild) {
-            let atomicType;
-            const imageRegExp = new RegExp('[^\s]+\.(jpg|png|gif)');
-            const audioRegExp = new RegExp('[^\s]+\.(mp3|wav|ogg)');
-            const videoRegExp = new RegExp('[^\s]+\.(ogg|mp4|mkv)');
+        let atomicType;
+        const imageRegExp = new RegExp('[^\s]+\.(jpg|png|gif)');
+        const audioRegExp = new RegExp('[^\s]+\.(mp3|wav|ogg)');
+        const videoRegExp = new RegExp('[^\s]+\.(ogg|mp4|mkv)');
+        if (sniffer.check) {
+            // 探测 url 是否有效
+            const { data, err } = await request(`${sniffer.url}?${sniffer.param}=${url}`);
+            if (err) {
+                throw new Error(err);
+            }
+            if (data && data.vaild) {
+                if (imageRegExp.test(url)) {
+                    atomicType = 'image';
+                }
+                if (audioRegExp.test(url)) {
+                    atomicType = 'audio';
+                }
+                if (videoRegExp.test(url)) {
+                    atomicType = 'video';
+                }
+                insertAtomic(url, atomicType);
+            } else {
+                throw new Error(data.info);
+            }
+        } else {
             if (imageRegExp.test(url)) {
                 atomicType = 'image';
             }
@@ -47,8 +62,6 @@ export default class AtomicLayoutCtrl extends Component {
                 atomicType = 'video';
             }
             insertAtomic(url, atomicType);
-        } else {
-            throw new Error(data.info);
         }
         this.setState({ url: '' }); // 清除input框
     }

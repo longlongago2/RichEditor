@@ -3,7 +3,9 @@
 * [2.production  使用文档](#pro)
 
 ## development 工程及脚手架说明文档
+
 <a name="dev"></a>
+
 ### 1.scripts CLI
 
 `npm run build` 编译模块代码到lib文件夹
@@ -75,7 +77,9 @@ externals: {
 ```
 
 ## production 使用文档
+
 <a name="pro"></a>
+
 ### ECMAScript 6
 ```
 import { RichEditor, EditorRecur } from 'cf-rich-editor';
@@ -105,7 +109,7 @@ export default class Demo extends Component {
             onChange: this.handleChange,
             importHtml: false, // 是否导入 html(string) 类型数据
             initialRawContent: JSON.parse(rowContentStorage), // 本地缓存数据
-            snifferApi: { url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }
+            sniffer: { check:true, url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }
             // 网址嗅探接口：返回值格式遵循{ vaild:true/false,response:'responseInfo' }有效true,无效false
         };
         const editorRecurProps = {

@@ -3,8 +3,8 @@ import React, { Component, PropTypes } from 'react';
 export default class AtomicImage extends Component {
     static propTypes = {
         src: PropTypes.string.isRequired,
-        width: PropTypes.number,
-        height: PropTypes.number,
+        width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         uuid: PropTypes.string.isRequired,
         readOnly: PropTypes.bool.isRequired,
         onEdit: PropTypes.func,
@@ -14,8 +14,9 @@ export default class AtomicImage extends Component {
         super(props);
         this.state = {
             showToolBar: false,
-            imgWidth: '',
-            imgHeight: '',
+            imgWidth: props.width,
+            imgHeight: props.height,
+            imgScale: 1,
             ratioLock: true,
         };
         this.handleClick = this._handleClick.bind(this);
@@ -38,29 +39,30 @@ export default class AtomicImage extends Component {
             this.setState({
                 showToolBar: !showToolBar,
                 imgWidth: e.target.width,
-                imgHeight: e.target.height
+                imgHeight: e.target.height,
+                imgScale: parseFloat(e.target.width / e.target.height),
             });
             onEdit(uuid, src, e.target.width, e.target.height, !showToolBar);
         }
     }
 
     _handleInputChange(e, name) {
-        const { imgWidth, imgHeight, ratioLock } = this.state;
+        const { imgScale, ratioLock } = this.state;
         const newState = {};
         if (isNaN(e.target.value)) {
             return;
         }
-        if (ratioLock) {
+        if (ratioLock && e.target.value.trim() !== '') {
             if (name === 'imgWidth') {
                 newState[name] = parseFloat(e.target.value);
-                newState.imgHeight = parseFloat(e.target.value * imgHeight) / parseFloat(imgWidth);
+                newState.imgHeight = parseFloat(e.target.value / imgScale);
             }
             if (name === 'imgHeight') {
-                newState.imgWidth = parseFloat(e.target.value * imgWidth) / parseFloat(imgHeight);
+                newState.imgWidth = parseFloat(e.target.value * imgScale);
                 newState[name] = parseFloat(e.target.value);
             }
         } else {
-            newState[name] = e.target.value;
+            newState[name] = e.target.value.trim() === '' ? '' : parseFloat(e.target.value);
         }
         this.setState(newState);
     }

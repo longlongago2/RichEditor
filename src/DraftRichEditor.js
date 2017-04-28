@@ -46,10 +46,11 @@ const {
 export default class DraftRichEditor extends Component {
     static propTypes = {
         onChange: PropTypes.func.isRequired,           // onChange 一个回调函数，作用：接收当前html值并处理
+        onImageUpload: PropTypes.func,                 // 上传图片函数
         initialHtml: PropTypes.string,                 // 初始数据html
         initialRawContent: PropTypes.object,           // 初始数据rowContent
         importHtml: PropTypes.bool.isRequired,         // 是否导入html
-        snifferApi: PropTypes.object,                  // 地址嗅探接口：{ url:'', param:'参数名称' }
+        sniffer: PropTypes.object,                     // 地址嗅探接口：{ url:'', param:'参数名称' }
     };
 
     static defaultProps = {
@@ -61,7 +62,8 @@ export default class DraftRichEditor extends Component {
                 type: 'unstyled',
             }],
             entityMap: {}
-        }
+        },
+        sniffer: { check: false }
     };
 
     constructor(props) {
@@ -106,6 +108,7 @@ export default class DraftRichEditor extends Component {
             editorState: EditorState.createWithContent(initialState, compositeDecorator),
             readOnly: false,
             darkTheme: false,
+            uploadSuccess: true,
         };
         this.onChange = (editorState, callback) => {
             /**
@@ -293,9 +296,22 @@ export default class DraftRichEditor extends Component {
 
     _handleFileInput(e) {
         const { editorState } = this.state;
+        const { onImageUpload } = this.props;
+        let entityKey;
         const fileList = e.target.files;
         const file = fileList[0];
-        const entityKey = Entity.create('image', 'IMMUTABLE', { src: URL.createObjectURL(file), uuid: uuid() });
+        if (onImageUpload && typeof onImageUpload === 'function') {
+            const src = onImageUpload(file);  // 上传方法，返回值为图片的服务器地址
+            entityKey = Entity.create('image', 'IMMUTABLE', { src, uuid: uuid() });
+        } else {
+            entityKey = Entity.create('image', 'IMMUTABLE', { src: URL.createObjectURL(file), uuid: uuid() });
+            this.setState({ uploadSuccess: false }, () => {
+                // 4s 后自动关闭
+                setTimeout(() => {
+                    this.setState({ uploadSuccess: true });
+                }, 4000);
+            });
+        }
         this.onChange(AtomicBlockUtils.insertAtomicBlock(
             editorState,
             entityKey,
@@ -333,8 +349,8 @@ export default class DraftRichEditor extends Component {
     }
 
     render() {
-        const { editorState, readOnly, darkTheme } = this.state;
-        const { snifferApi } = this.props;
+        const { editorState, readOnly, darkTheme, uploadSuccess } = this.state;
+        const { sniffer } = this.props;
         const contentState = editorState.getCurrentContent();
         const editorTheme = {
             cursor: readOnly ? 'default' : null,
@@ -504,13 +520,14 @@ export default class DraftRichEditor extends Component {
                         defaultURL={defaultLink()}
                         removeLink={this.handleRemoveLink}
                         addLink={this.handleAddLink}
-                        snifferApi={snifferApi}
+                        sniffer={sniffer}
                     />
                     <AtomicLayoutCtrl
                         insertAtomic={this.handleInsertAtomic}
-                        snifferApi={snifferApi}
+                        sniffer={sniffer}
                     />
                     <ImageUploadCtrl
+                        uploadSuccess={uploadSuccess}
                         title="添加图片"
                         onChange={this.handleFileInput}
                     />
