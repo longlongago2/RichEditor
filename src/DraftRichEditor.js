@@ -294,15 +294,33 @@ export default class DraftRichEditor extends Component {
         });
     }
 
-    _handleFileInput(e) {
+    async _handleFileInput(e) {
         const { editorState } = this.state;
         const { onImageUpload } = this.props;
         let entityKey;
         const fileList = e.target.files;
         const file = fileList[0];
         if (onImageUpload && typeof onImageUpload === 'function') {
-            const src = onImageUpload(file);  // 上传方法，返回值为图片的服务器地址
-            entityKey = Entity.create('image', 'IMMUTABLE', { src, uuid: uuid() });
+            const { data, err } = await onImageUpload(file);  // 上传方法，返回值为图片的服务器地址
+            if (err) {
+                this.setState({ uploadSuccess: false }, () => {
+                    // 4s 后自动关闭
+                    setTimeout(() => {
+                        this.setState({ uploadSuccess: true });
+                    }, 4000);
+                });
+                return;
+            }
+            if (data && data.success === 'true') {
+                entityKey = Entity.create('image', 'IMMUTABLE', { src: data.file_path, uuid: uuid() });
+            } else {
+                this.setState({ uploadSuccess: false }, () => {
+                    // 4s 后自动关闭
+                    setTimeout(() => {
+                        this.setState({ uploadSuccess: true });
+                    }, 4000);
+                });
+            }
         } else {
             entityKey = Entity.create('image', 'IMMUTABLE', { src: URL.createObjectURL(file), uuid: uuid() });
             this.setState({ uploadSuccess: false }, () => {
@@ -400,37 +418,37 @@ export default class DraftRichEditor extends Component {
         ];
         const SELECT_INLINE_TYPES_COLOR = [
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:red;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(255, 0, 0, 1.0);"/></div>`,
                 style: 'COLOR_RED',
                 title: '红色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:orange;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(255, 127, 0, 1.0);"/></div>`,
                 style: 'COLOR_ORANGE',
                 title: '橘黄色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:yellow;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(180, 180, 0, 1.0);"/></div>`,
                 style: 'COLOR_YELLOW',
                 title: '黄色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:green;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(0, 180, 0, 1.0);"/></div>`,
                 style: 'COLOR_GREEN',
                 title: '绿色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:blue;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(0, 0, 255, 1.0);"/></div>`,
                 style: 'COLOR_BLUE',
                 title: '蓝色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:indigo;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(75, 0, 130, 1.0);"/></div>`,
                 style: 'COLOR_INDIGO',
                 title: '靛蓝色'
             },
             {
-                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:violet;"/></div>`,
+                label: `<div class="${styles.colorOption}"><em class="${styles.color}" style="background:rgba(127, 0, 255, 1.0);"/></div>`,
                 style: 'COLOR_VIOLET',
                 title: '紫色'
             },

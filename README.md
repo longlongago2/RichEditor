@@ -83,6 +83,7 @@ externals: {
 ### ECMAScript 6
 ```
 import { RichEditor, EditorRecur } from 'cf-rich-editor';
+import request from 'cf-rich-editor/lib/Utils/request';
 import 'cf-rich-editor/dist/CFRichEditor.css';
 
 import React, { Component, PropTypes } from 'react';
@@ -93,6 +94,19 @@ export default class Demo extends Component {
             rawContentState: {},
         };
         this.handleChange = this._handleChange.bind(this);
+        this.handleImageUpload = (file) => {
+            const fileData = new FormData();
+            fileData.append('fileDataFileName', file); // 后台接收的参数名（模拟 form 下 input[type='file'] 的 name）
+            return request('http://192.168.1.49:8080/CFSP/workorders/uploadPicByFile', {
+            method: 'POST',
+            body: fileData
+            });
+                    // 数据返回格式如下：
+                    // {
+                    //     success: 'true',
+                    //     file_path: 'http://cf953000.f3322.org:10101/CFSP/media/images/20170105/c9e09ec1-f582-413f-94f4-6c65a5d57ea6.jpg'
+                    // };
+        };
     }
 
     _handleChange(html, rawContentState) {
@@ -106,6 +120,7 @@ export default class Demo extends Component {
         const sessionKey = window.location.href.split('?')[0]; // session名称
         const rowContentStorage = sessionStorage.getItem(sessionKey);
         const richEditorProps = {
+            onImageUpload: this.handleImageUpload, // 上传图片
             onChange: this.handleChange,
             importHtml: false, // 是否导入 html(string) 类型数据
             initialRawContent: JSON.parse(rowContentStorage), // 本地缓存数据

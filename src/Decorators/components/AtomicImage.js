@@ -135,7 +135,6 @@ export default class AtomicImage extends Component {
                 outline: 'none',
             },
             img: {
-                boxShadow: '0 0 5px #000',
                 cursor: readOnly ? 'default' : 'pointer',
             }
         };

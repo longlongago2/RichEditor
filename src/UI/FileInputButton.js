@@ -16,12 +16,14 @@ export default class FileInputButton extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            uploadSuccess: props.uploadSuccess
+            uploadSuccess: props.uploadSuccess,
+            loading: false,
         };
         this.handleOpenFileDialog = this._handleOpenFileDialog.bind(this);
         this.handleChange = (e) => {
             e.preventDefault();
-            props.onChange(e);
+            this.setState({ loading: true });
+            props.onChange(e).then(() => this.setState({ loading: false }));
         };
     }
 
@@ -39,11 +41,11 @@ export default class FileInputButton extends Component {
 
     render() {
         const { prefixIcon, title, text } = this.props;
-        const { uploadSuccess } = this.state;
+        const { uploadSuccess, loading } = this.state;
         const className = classModule('selectButton', 'button');
         return (
             <span className={className} title={title} onMouseDown={this.handleOpenFileDialog}>
-                <i className={`fa fa-${prefixIcon}`} aria-hidden="true">
+                <i className={loading ? 'fa fa-spinner fa-pulse' : `fa fa-${prefixIcon}`} aria-hidden="true">
                     {text ? <span>{text}</span> : null}
                 </i>
                 <ul className={styles.optionLayout} style={uploadSuccess ? { display: 'none' } : null}>
