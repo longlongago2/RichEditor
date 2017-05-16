@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { RichEditor, EditorRecur } from '../index'; // development
 // import { RichEditor, EditorRecur } from '../../lib/index'; // production
-// import '../../dist/CFRichEditor.css'; // production
+// import '../../dist/CFRichEditor.min.css'; // production
 import styles from './RichEditor.less';
 import request from '../Utils/request';
 
@@ -15,7 +15,7 @@ export default class Demo extends Component {
         this.handleImageUpload = (file) => {
             const fileData = new FormData();
             fileData.append('fileDataFileName', file); // 后台接收的参数名（模拟 form 下 input[type='file'] 的 name）
-            return request('http://192.168.1.49:8080/CFSP/workorders/uploadPicByFile', {
+            return request('http://192.168.1.245:8080/CFSP/workorders/uploadPicByFile', {
                 method: 'POST',
                 body: fileData
             });
@@ -42,7 +42,7 @@ export default class Demo extends Component {
             onImageUpload: this.handleImageUpload,
             importHtml: false,
             initialRawContent: JSON.parse(rowContentStorage),
-            sniffer: { check: true, url: 'http://192.168.1.49:8080/CFSP/web/checkUrl', param: 'urlStr' }
+            sniffer: { check: true, url: 'http://192.168.1.245:8080/CFSP/web/checkUrl', param: 'urlStr' }
         };
         const editorRecurProps = {
             rawContentState,

@@ -2,6 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import InputLayout from '../UI/InputLayout';
 import request from '../Utils/request';
 
+if (!window.regeneratorRuntime) {
+    window.regeneratorRuntime = require('regenerator-runtime'); // 兼容最新的异步函数
+}
+
 export default class LinkLayoutCtrl extends Component {
     static propTypes = {
         addLink: PropTypes.func.isRequired,

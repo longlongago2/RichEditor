@@ -17,34 +17,50 @@ export default class FileInputButton extends Component {
         super(props);
         this.state = {
             uploadSuccess: props.uploadSuccess,
+            title: props.title,
             loading: false,
         };
         this.handleOpenFileDialog = this._handleOpenFileDialog.bind(this);
         this.handleChange = (e) => {
             e.preventDefault();
-            this.setState({ loading: true });
-            props.onChange(e).then(() => this.setState({ loading: false }));
+            // console.log(e.target.files);
+            if (e.target.files.length > 0) {
+                this.setState({ loading: true });
+                e.persist(); // 保证异步事件e不会释放
+                props.onChange(e).then(() => {
+                    e.target.value = ''; // 清空input type='file'的值
+                    this.setState({ loading: false });
+                });
+            }
         };
     }
 
     componentWillReceiveProps(nextProps) {
+        const newState = {};
         if (nextProps.uploadSuccess !== this.props.uploadSuccess) {
-            this.setState({
-                uploadSuccess: nextProps.uploadSuccess
-            });
+            newState.uploadSuccess = nextProps.uploadSuccess;
+        }
+        if (nextProps.title !== this.props.title) {
+            newState.title = nextProps.title;
+        }
+        this.setState(newState);
+    }
+
+    _handleOpenFileDialog(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const { loading } = this.state;
+        if (!loading) {
+            this.refs.fileInput.click();
         }
     }
 
-    _handleOpenFileDialog() {
-        this.refs.fileInput.click();
-    }
-
     render() {
-        const { prefixIcon, title, text } = this.props;
-        const { uploadSuccess, loading } = this.state;
+        const { prefixIcon, text } = this.props;
+        const { uploadSuccess, title, loading } = this.state;
         const className = classModule('selectButton', 'button');
         return (
-            <span className={className} title={title} onMouseDown={this.handleOpenFileDialog}>
+            <span className={className} title={loading ? '正在上传，请稍候...' : title} onMouseDown={this.handleOpenFileDialog}>
                 <i className={loading ? 'fa fa-spinner fa-pulse' : `fa fa-${prefixIcon}`} aria-hidden="true">
                     {text ? <span>{text}</span> : null}
                 </i>

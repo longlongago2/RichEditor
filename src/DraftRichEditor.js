@@ -43,6 +43,10 @@ const {
     convertFromHTML,
 } = Draft;
 
+if (!window.regeneratorRuntime) {
+    window.regeneratorRuntime = require('regenerator-runtime'); // 兼容最新的异步函数
+}
+
 export default class DraftRichEditor extends Component {
     static propTypes = {
         onChange: PropTypes.func.isRequired,           // onChange 一个回调函数，作用：接收当前html值并处理

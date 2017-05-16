@@ -10,10 +10,6 @@ const CONFIG_HMR = {
     entry: [
         'react-hot-loader/patch',
         // activate HMR for React
-        'whatwg-fetch',
-        // add fetch to window
-        'babel-polyfill',
-        // add Promise and so on
         './index.js',
         // the entry point of our app
     ],
@@ -46,7 +42,7 @@ const CONFIG_HMR = {
                 use: [
                     'babel-loader'
                 ],
-                exclude: /node_modules/
+                exclude: /(node_modules|lib)/
             },
             {
                 test: /\.css$/,
@@ -98,7 +94,7 @@ const CONFIG_DIST = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
+        filename: '[name].min.js',
     },
     externals: {
         "react": 'React',       // dist文件一般不打包react模块，因为dist文件是通过html script引入的，html会有react.js引入，会导致重复引入
@@ -168,7 +164,7 @@ const CONFIG_DIST = {
     },
     plugins: [
         new ExtractTextPlugin({
-            filename: '[name].css',
+            filename: '[name].min.css',
         }),
     ],
 };
