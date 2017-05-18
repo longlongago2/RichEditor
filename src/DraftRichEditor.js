@@ -113,6 +113,7 @@ export default class DraftRichEditor extends Component {
             readOnly: false,
             darkTheme: false,
             uploadSuccess: true,
+            uploadFailedText: '图片上传失败！',
         };
         this.onChange = (editorState, callback) => {
             /**
@@ -307,7 +308,7 @@ export default class DraftRichEditor extends Component {
         if (onImageUpload && typeof onImageUpload === 'function') {
             const { data, err } = await onImageUpload(file);  // 上传方法，返回值为图片的服务器地址
             if (err) {
-                this.setState({ uploadSuccess: false }, () => {
+                this.setState({ uploadSuccess: false, uploadFailedText: `接口报错：${err}` }, () => {
                     // 4s 后自动关闭
                     setTimeout(() => {
                         this.setState({ uploadSuccess: true });
@@ -317,6 +318,11 @@ export default class DraftRichEditor extends Component {
             }
             if (data && data.success === 'true') {
                 entityKey = Entity.create('image', 'IMMUTABLE', { src: data.file_path, uuid: uuid() });
+                this.onChange(AtomicBlockUtils.insertAtomicBlock(
+                    editorState,
+                    entityKey,
+                    ' '
+                ));
             } else {
                 this.setState({ uploadSuccess: false }, () => {
                     // 4s 后自动关闭
@@ -326,19 +332,24 @@ export default class DraftRichEditor extends Component {
                 });
             }
         } else {
-            entityKey = Entity.create('image', 'IMMUTABLE', { src: URL.createObjectURL(file), uuid: uuid() });
-            this.setState({ uploadSuccess: false }, () => {
-                // 4s 后自动关闭
-                setTimeout(() => {
-                    this.setState({ uploadSuccess: true });
-                }, 4000);
-            });
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (fileEvent) {
+                const base64File = fileEvent.target.result; // base64 image
+                entityKey = Entity.create('image', 'IMMUTABLE', { src: base64File, uuid: uuid() });
+                this.setState({ uploadSuccess: false, uploadFailedText: '图片没有指定存储到服务器，直接存储为base64' }, () => {
+                    // 4s 后自动关闭
+                    setTimeout(() => {
+                        this.setState({ uploadSuccess: true });
+                    }, 5000);
+                });
+                this.onChange(AtomicBlockUtils.insertAtomicBlock(
+                    editorState,
+                    entityKey,
+                    ' '
+                ));
+            }.bind(this);
         }
-        this.onChange(AtomicBlockUtils.insertAtomicBlock(
-            editorState,
-            entityKey,
-            ' '
-        ));
     }
 
     _handleEditImage(key, src, width, height, edit) {
@@ -371,7 +382,7 @@ export default class DraftRichEditor extends Component {
     }
 
     render() {
-        const { editorState, readOnly, darkTheme, uploadSuccess } = this.state;
+        const { editorState, readOnly, darkTheme, uploadSuccess, uploadFailedText } = this.state;
         const { sniffer } = this.props;
         const contentState = editorState.getCurrentContent();
         const editorTheme = {
@@ -549,6 +560,7 @@ export default class DraftRichEditor extends Component {
                         sniffer={sniffer}
                     />
                     <ImageUploadCtrl
+                        uploadFailedText={uploadFailedText}
                         uploadSuccess={uploadSuccess}
                         title="添加图片"
                         onChange={this.handleFileInput}

@@ -10,6 +10,7 @@ export default class FileInputButton extends Component {
         title: PropTypes.string,
         text: PropTypes.string,
         uploadSuccess: PropTypes.bool.isRequired,
+        uploadFailedText: PropTypes.string.isRequired,
         onChange: PropTypes.func.isRequired,
     };
 
@@ -17,6 +18,7 @@ export default class FileInputButton extends Component {
         super(props);
         this.state = {
             uploadSuccess: props.uploadSuccess,
+            uploadFailedText: props.uploadFailedText,
             title: props.title,
             loading: false,
         };
@@ -43,6 +45,9 @@ export default class FileInputButton extends Component {
         if (nextProps.title !== this.props.title) {
             newState.title = nextProps.title;
         }
+        if (nextProps.uploadFailedText !== this.props.uploadFailedText) {
+            newState.uploadFailedText = nextProps.uploadFailedText;
+        }
         this.setState(newState);
     }
 
@@ -57,7 +62,7 @@ export default class FileInputButton extends Component {
 
     render() {
         const { prefixIcon, text } = this.props;
-        const { uploadSuccess, title, loading } = this.state;
+        const { uploadSuccess, uploadFailedText, title, loading } = this.state;
         const className = classModule('selectButton', 'button');
         return (
             <span className={className} title={loading ? '正在上传，请稍候...' : title} onMouseDown={this.handleOpenFileDialog}>
@@ -70,7 +75,7 @@ export default class FileInputButton extends Component {
                         <div style={{ color: 'red', fontSize: '20px' }}>
                             <i className="fa fa-exclamation-triangle" aria-hidden="true" />
                         </div>
-                        图片上传失败！
+                        { uploadFailedText }
                     </div>
                 </ul>
                 <input

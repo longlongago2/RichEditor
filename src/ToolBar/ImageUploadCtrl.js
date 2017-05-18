@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
 import FileInputButton from '../UI/FileInputButton';
 
-const ImageUploadCtrl = ({ onChange, title, text, uploadSuccess }) => {
+const ImageUploadCtrl = ({ onChange, title, text, uploadSuccess, uploadFailedText }) => {
     return (
         <div style={{ userSelect: 'none', display: 'inline' }}>
             <FileInputButton
                 uploadSuccess={uploadSuccess}
+                uploadFailedText={uploadFailedText}
                 title={title}
                 text={text}
                 prefixIcon="image"
@@ -19,6 +20,7 @@ ImageUploadCtrl.propTypes = {
     title: PropTypes.string,
     text: PropTypes.string,
     uploadSuccess: PropTypes.bool.isRequired,
+    uploadFailedText: PropTypes.string.isRequired,
 };
 
 export default ImageUploadCtrl;
