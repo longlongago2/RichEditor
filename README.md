@@ -1,4 +1,5 @@
-# RichEditor
+# react-rich-editor
+
 * [1.development 开发文档](#dev)
 * [2.production  使用文档](#pro)
 
