@@ -1,3 +1,4 @@
+// TODO: 可以使用webpack4重构打包代码
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
