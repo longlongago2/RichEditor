@@ -2,7 +2,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const OpenBrowserPlugin = require('open-browser-webpack-plugin'); // 注意：使用0.0.4版本出现一个bug会导致HMR编译挂起
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const AutoPreFixer = require('autoprefixer');
 require('colors');
 
